@@ -10,7 +10,7 @@ const
 app.listen(process.env.PORT || 1337, () => console.log('LyBot webhook is up'))
 
 app.get('/', function (req, res) {
-	res.send('Welcome to JUSTBOT')
+	res.send('Welcome to LYBOT')
 })
 
 // Receives message and responds with proper text or postback options
