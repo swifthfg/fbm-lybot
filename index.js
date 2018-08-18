@@ -15,6 +15,8 @@ app.get('/', function (req, res) {
 
 // Receives message and responds with proper text or postback options
 app.post('/webhook', (req, res) => {
+	console.log("Request gotted");
+
 	let body = req.body
 
 	if (body.object === 'page') {
@@ -27,6 +29,7 @@ app.post('/webhook', (req, res) => {
 					let text = mEvent.message.text
 					let firstName = response.name.substr(0, response.name.indexOf(' '))
 					if (doesItExistInArray(constants.hiWordsEN_customer, text.split())) {
+						console.log("Sender said Hi");
 						sendGreetingQuickReply(sender, firstName);
 					} else {
 						sendText(sender, "What's up?")

@@ -37,11 +37,11 @@ define('hiWordsTR_bot', [
 ])
 
 define('hiWordsEN_customer', [
-	'Hi',
-	'Hello',
-	'Halo',
-	'Hola',
-	'Good morning',
+	'hi',
+	'hello',
+	'halo',
+	'hola',
+	'good morning',
 ])
 
 define('farewellWordsEN_customer', [
