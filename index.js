@@ -77,7 +77,8 @@ app.get('/webhook', (req, res) => {
 
 function formatMessageDataFromCrawlingResults(crawlingResults) {
 	let payloadElements = []
-	for (let i = 0; i < crawlingResults.length; i++) {
+	let cardLimit = crawlingResults.length < 5 ? crawlingResults.length : 5;
+	for (let i = 0; i < cardLimit; i++) {
 		let tempElement = {
 			'title': crawlingResults[i].contentTitle,
 			'subtitle': crawlingResults[i].subTitle,
