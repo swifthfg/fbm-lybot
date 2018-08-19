@@ -31,6 +31,7 @@ app.post('/webhook', (req, res) => {
 					if (doesItExistInArray(constants.hiWordsEN_customer, text.split())) {
 						sendGreetingQuickReply(sender, firstName);
 					} else if (text == 'Webrazzi'){
+						console.log('########## webrazzi requested');
 						crawler.crawlWebrazzi().then(function (results) {
 							sendPostbackMessage(sender, formatMessageDataFromCrawlingResults(results))
 						})
@@ -77,7 +78,7 @@ app.get('/webhook', (req, res) => {
 
 function formatMessageDataFromCrawlingResults(crawlingResults) {
 	let payloadElements = []
-	for (let i = 0; i < crawlingResults.length; i++) {
+	for (let i = 0; i < 3; i++) {
 		let tempElement = {
 			'title': crawlingResults[i].contentTitle,
 			'subtitle': crawlingResults[i].subTitle,
@@ -157,9 +158,11 @@ function sendMessage(sender, messageData) {
 		}
 	}, function(error, response, body) {
 		if (error) {
-			console.error('error occured: ' + error)
+			console.error('error occured')
+			console.error(error);
 		} else if (response.body.error) {
-			console.error('response body error occured: ' + response.body.error)
+			console.error('response body error occured')
+			console.error(response.body.error);
 		}
 	})
 }

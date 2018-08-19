@@ -37,10 +37,6 @@ function crawlWebrazzi() {
 	})
 }
 
-crawlWebrazzi().then(function(res){
-	console.log(res);
-})
-
 module.exports = {
 	crawlWebrazzi: crawlWebrazzi,
 }
