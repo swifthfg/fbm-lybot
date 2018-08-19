@@ -31,7 +31,6 @@ app.post('/webhook', (req, res) => {
 					if (doesItExistInArray(constants.hiWordsEN_customer, text.split())) {
 						sendGreetingQuickReply(sender, firstName);
 					} else if (text == 'Webrazzi'){
-						console.log('########## webrazzi requested');
 						crawler.crawlWebrazzi().then(function (results) {
 							sendPostbackMessage(sender, formatMessageDataFromCrawlingResults(results))
 						})
@@ -78,7 +77,7 @@ app.get('/webhook', (req, res) => {
 
 function formatMessageDataFromCrawlingResults(crawlingResults) {
 	let payloadElements = []
-	for (let i = 0; i < 3; i++) {
+	for (let i = 0; i < crawlingResults.length; i++) {
 		let tempElement = {
 			'title': crawlingResults[i].contentTitle,
 			'subtitle': crawlingResults[i].subTitle,
