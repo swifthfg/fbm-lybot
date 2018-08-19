@@ -1,11 +1,13 @@
 const
-	constants = require("./constants")
-	request = require('request'),
+	constants = require('./constants')
+	request = require('request')
 	rp = require('request-promise')
-	express = require('express'),
-	body_parser = require('body-parser'),
+	express = require('express')
+	body_parser = require('body-parser')
 	app = express().use(body_parser.json())
+	crawler = require('./crawler')
 	require('dotenv').config()
+
 
 app.listen(process.env.PORT || 1337, () => console.log('LyBot webhook is up'))
 
@@ -15,8 +17,6 @@ app.get('/', function (req, res) {
 
 // Receives message and responds with proper text or postback options
 app.post('/webhook', (req, res) => {
-	console.log("Request gotted");
-
 	let body = req.body
 
 	if (body.object === 'page') {
@@ -29,15 +29,18 @@ app.post('/webhook', (req, res) => {
 					let text = mEvent.message.text
 					let firstName = response.name.substr(0, response.name.indexOf(' '))
 					if (doesItExistInArray(constants.hiWordsEN_customer, text.split())) {
-						console.log("Sender said Hi");
 						sendGreetingQuickReply(sender, firstName);
+					} else if (text == 'Webrazzi'){
+						crawler.crawlWebrazzi().then(function (results) {
+							sendPostbackMessage(sender, formatMessageDataFromCrawlingResults(results))
+						})
 					} else {
-						sendText(sender, "What's up?")
+						sendText(sender, 'What\'s up?')
 						sendPostbackMessage(sender, null)
 					}
 				}
 				else if (mEvent.postback) {
-					sendText(sender, "You have postbacked!")
+					sendText(sender, 'You have postbacked!')
 				}
 			})
 			.catch(function(error) {
@@ -72,6 +75,40 @@ app.get('/webhook', (req, res) => {
 
 /* ############################################################ UTILS ############################################################ */
 
+function formatMessageDataFromCrawlingResults(crawlingResults) {
+	let payloadElements = []
+	for (let i = 0; i < crawlingResults.length; i++) {
+		let tempElement = {
+			'title': crawlingResults[i].contentTitle,
+			'subtitle': crawlingResults[i].subTitle,
+			'image_url': crawlingResults[i].imgUrl,
+
+			'default_action': {
+				'type': 'web_url',
+				'url': crawlingResults[i].contentUrl,
+				'webview_height_ratio': 'tall',
+			},
+			"buttons":[
+				{
+					'type':'web_url',
+					'url':crawlingResults[i].contentUrl,
+					'title':'View Website'
+				}
+			]
+		}
+		payloadElements.push(tempElement)
+	}
+
+	return {
+		'attachment': {
+			'type': 'template',
+			'payload': {
+				'template_type': 'generic',
+				'elements': payloadElements
+			}
+		}
+	}
+}
 
 function sendPostbackMessage(sender, messageData=null) {
 	if (messageData) {
@@ -111,20 +148,18 @@ function sendText(sender, textMessage) {
 function sendMessage(sender, messageData) {
 	let recipientData = {id: sender}
 	request({
-		url: "https://graph.facebook.com/v2.6/me/messages",
+		url: 'https://graph.facebook.com/v2.6/me/messages',
 		qs: {access_token: process.env.TOKEN},
-		method: "POST",
+		method: 'POST',
 		json: {
 			recipient: recipientData,
 			message: messageData
 		}
 	}, function(error, response, body) {
 		if (error) {
-			console.log("error occured")
-			console.error(error)
+			console.error('error occured: ' + error)
 		} else if (response.body.error) {
-			console.log("response body error occured")
-			console.error(response.body.error)
+			console.error('response body error occured: ' + response.body.error)
 		}
 	})
 }
