@@ -20,7 +20,7 @@ function crawlWebrazzi() {
 			try {
 				let tempContent = {
 					contentTitle: contentUrls[i].attribs['title'],
-					subTitle: subtitles[i].children[0].data
+					subTitle: subtitles[i].children[0].data,
 					contentUrl: contentUrls[i].attribs['href'],
 					imgUrl: images[i].attribs['data-src'],
 				}
