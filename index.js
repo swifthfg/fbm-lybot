@@ -65,7 +65,10 @@ app.post('/webhook', (req, res) => {
 					}
 				}
 				else if (mEvent.postback) {
+					console.log('POSTBACK ++++++++');
+
 					if (mEvent.postback.payload == 'getstarted') {
+						console.log('GETSTARTED ++++++++');
 						sendPostbackMessage(sender, null)
 					} else if (mEvent.postback.payload == 'identityinfo') {
 						sendText(sender, "I am a notifier bot that can serve you for your news reading pleasure. I crawl the websites you wish and send the latest news every hour. Enjoy your news.")
