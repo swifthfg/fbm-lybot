@@ -65,10 +65,7 @@ app.post('/webhook', (req, res) => {
 					}
 				}
 				else if (mEvent.postback) {
-					console.log('POSTBACK ++++++++');
-
 					if (mEvent.postback.payload == 'getstarted') {
-						console.log('GETSTARTED ++++++++');
 						sendPostbackMessage(sender, null)
 					} else if (mEvent.postback.payload == 'identityinfo') {
 						sendText(sender, "I am a notifier bot that can serve you for your news reading pleasure. I crawl the websites you wish and send the latest news every hour. Enjoy your news.")
@@ -158,11 +155,11 @@ function sendPostbackMessage(sender, messageData=null) {
 						'subtitle': 'Take a look at the services you can ask.',
 						'image_url': 'https://pbs.twimg.com/profile_images/830523441660968960/YozH1XXi_400x400.jpg',
 						'buttons': [{
-							'type': 'text',
+							'type': 'postback',
 							'title': 'Who am I?',
 							'payload': 'identityinfo',
 						}, {
-							'type': 'text',
+							'type': 'postback',
 							'title': 'Get Me The News',
 							'payload': 'getmethenews',
 						}]
