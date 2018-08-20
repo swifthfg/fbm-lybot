@@ -43,6 +43,7 @@ app.post('/webhook', (req, res) => {
 		let messagingEvents = req.body.entry[0].messaging
 		if (!messagingEvents) {
 			console.log('No event')
+			res.sendStatus(422)
 			return
 		}
 		for (let i = 0; i < messagingEvents.length; i++) {
