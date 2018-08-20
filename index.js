@@ -42,7 +42,6 @@ app.post('/webhook', (req, res) => {
 					if (doesItExistInArray(constants.hiWordsEN_customer, text.split())) {
 						sendGreetingQuickReply(sender, firstName);
 					} else if (text == 'webrazzi'){
-						console.log(webrazziNewsMD);
 						sendPostbackMessage(sender, webrazziNewsMD)
 					} else {
 						sendText(sender, 'What\'s up?')
@@ -50,6 +49,8 @@ app.post('/webhook', (req, res) => {
 					}
 				}
 				else if (mEvent.postback) {
+					console.log('###########');
+					console.log(mEvent);
 					sendText(sender, 'You have postbacked!')
 				}
 			})
