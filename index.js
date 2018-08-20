@@ -15,6 +15,13 @@ app.get('/', function (req, res) {
 	res.send('Welcome to LYBOT')
 })
 
+var webrazziNewsMD = null
+setInterval(function() {
+	crawler.crawlWebrazzi().then(function (results) {
+		webrazziNewsMD = formatMessageDataFromCrawlingResults(results)
+	})
+}, 1000*15*60)
+
 // Receives message and responds with proper text or postback options
 app.post('/webhook', (req, res) => {
 	let body = req.body
@@ -31,9 +38,7 @@ app.post('/webhook', (req, res) => {
 					if (doesItExistInArray(constants.hiWordsEN_customer, text.split())) {
 						sendGreetingQuickReply(sender, firstName);
 					} else if (text == 'Webrazzi'){
-						crawler.crawlWebrazzi().then(function (results) {
-							sendPostbackMessage(sender, formatMessageDataFromCrawlingResults(results))
-						})
+						sendPostbackMessage(sender, webrazziNewsMD)
 					} else {
 						sendText(sender, 'What\'s up?')
 						sendPostbackMessage(sender, null)
