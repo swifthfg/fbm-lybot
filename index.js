@@ -20,11 +20,20 @@ crawler.crawlWebrazzi().then(function (results) {
 	webrazziNewsMD = formatMessageDataFromCrawlingResults(results)
 })
 
+var senderIds = []
 setInterval(function() {
 	crawler.crawlWebrazzi().then(function (results) {
 		webrazziNewsMD = formatMessageDataFromCrawlingResults(results)
-	})
-}, 1000*15*60)
+		for (let i = 0; i < senderIds.length; i++) {
+			try {
+				sendPostbackMessage(senderIds[i], webrazziNewsMD)
+			} catch (e) {
+				console.error('Error occured while sending interval mmessages');
+				console.error(e);
+			}
+		}
+	 })
+}, 1000*60*60)
 
 // Receives message and responds with proper text or postback options
 app.post('/webhook', (req, res) => {
@@ -35,10 +44,13 @@ app.post('/webhook', (req, res) => {
 		for (let i = 0; i < messagingEvents.length; i++) {
 			let mEvent = messagingEvents[i]
 			let sender = mEvent.sender.id
+			if (!(senderIds.indexOf(sender) > -1)) {
+				senderIds.push(sender)
+			}
 			getSenderName(sender).then(function(response) {
+				let firstName = response.name.substr(0, response.name.indexOf(' '))
 				if (mEvent.message && mEvent.message.text) {
 					let text = mEvent.message.text.toLowerCase();
-					let firstName = response.name.substr(0, response.name.indexOf(' '))
 					if (doesItExistInArray(constants.hiWordsEN_customer, text.split())) {
 						sendGreetingQuickReply(sender, firstName);
 					} else if (text == 'webrazzi'){
@@ -49,9 +61,13 @@ app.post('/webhook', (req, res) => {
 					}
 				}
 				else if (mEvent.postback) {
-					console.log('###########');
-					console.log(mEvent);
-					sendText(sender, 'You have postbacked!')
+					if (mEvent.postback.payload == 'getstarted') {
+						sendPostbackMessage(sender, null)
+					} else if (mEvent.postback.payload == 'identityinfo') {
+						sendText(sender, "I am a notifier bot that can serve you for your news reading pleasure. I crawl the websites you wish and send the latest news every hour. Enjoy your news.")
+					} else if (mEvent.postback.payload == 'getmethenews') {
+						sendGreetingQuickReply(sender, firstName);
+					}
 				}
 			})
 			.catch(function(error) {
@@ -141,7 +157,7 @@ function sendPostbackMessage(sender, messageData=null) {
 						}, {
 							'type': 'text',
 							'title': 'Get Me The News',
-							'payload': 'news',
+							'payload': 'getmethenews',
 						}]
 					}]
 				}
@@ -179,7 +195,7 @@ function sendMessage(sender, messageData) {
 
 function getGreetingQuickReply(firstName=null) {
 	let greetingQRMessageData = {
-		'text': firstName ? 'Hi ' + firstName + ', Welcome to LyBot. Which website news do you want?' : 'Welcome to LyBot. Which news do you want to hear about?',
+		'text': firstName ? 'Hi ' + firstName + '. Which website news do you want?' : 'Which news do you want to hear about?',
 		'quick_replies': [
 			{
 				'content_type': 'text',
