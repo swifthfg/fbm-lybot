@@ -41,6 +41,10 @@ app.post('/webhook', (req, res) => {
 
 	if (body.object === 'page') {
 		let messagingEvents = req.body.entry[0].messaging
+		if (!messagingEvents) {
+			console.log('No event')
+			return
+		}
 		for (let i = 0; i < messagingEvents.length; i++) {
 			let mEvent = messagingEvents[i]
 			let sender = mEvent.sender.id
