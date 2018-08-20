@@ -16,6 +16,10 @@ app.get('/', function (req, res) {
 })
 
 var webrazziNewsMD = null
+crawler.crawlWebrazzi().then(function (results) {
+	webrazziNewsMD = formatMessageDataFromCrawlingResults(results)
+})
+
 setInterval(function() {
 	crawler.crawlWebrazzi().then(function (results) {
 		webrazziNewsMD = formatMessageDataFromCrawlingResults(results)
@@ -33,11 +37,12 @@ app.post('/webhook', (req, res) => {
 			let sender = mEvent.sender.id
 			getSenderName(sender).then(function(response) {
 				if (mEvent.message && mEvent.message.text) {
-					let text = mEvent.message.text
+					let text = mEvent.message.text.toLowerCase();
 					let firstName = response.name.substr(0, response.name.indexOf(' '))
 					if (doesItExistInArray(constants.hiWordsEN_customer, text.split())) {
 						sendGreetingQuickReply(sender, firstName);
-					} else if (text == 'Webrazzi'){
+					} else if (text == 'webrazzi'){
+						console.log(webrazziNewsMD);
 						sendPostbackMessage(sender, webrazziNewsMD)
 					} else {
 						sendText(sender, 'What\'s up?')
@@ -88,7 +93,6 @@ function formatMessageDataFromCrawlingResults(crawlingResults) {
 			'title': crawlingResults[i].contentTitle,
 			'subtitle': crawlingResults[i].subTitle,
 			'image_url': crawlingResults[i].imgUrl,
-
 			'default_action': {
 				'type': 'web_url',
 				'url': crawlingResults[i].contentUrl,
@@ -126,17 +130,17 @@ function sendPostbackMessage(sender, messageData=null) {
 				'payload': {
 					'template_type': 'generic',
 					'elements': [{
-						'title': 'Nasıl yardımcı olabilirim?',
-						'subtitle': 'Size sağlayabileceğim hizmetlere göz atın.',
+						'title': 'How can I help you?',
+						'subtitle': 'Take a look at the services you can ask.',
 						'image_url': 'https://pbs.twimg.com/profile_images/830523441660968960/YozH1XXi_400x400.jpg',
 						'buttons': [{
-							'type': 'postback',
+							'type': 'text',
 							'title': 'Who am I?',
 							'payload': 'identityinfo',
 						}, {
-							'type': 'postback',
-							'title': 'Amuse me',
-							'payload': 'amusement',
+							'type': 'text',
+							'title': 'Get Me The News',
+							'payload': 'news',
 						}]
 					}]
 				}
@@ -174,7 +178,7 @@ function sendMessage(sender, messageData) {
 
 function getGreetingQuickReply(firstName=null) {
 	let greetingQRMessageData = {
-		'text': firstName ? 'Welcome to LyBot ' + firstName + '. Which website news do you want?' : 'Welcome to LyBot. Which news do you want to hear about?',
+		'text': firstName ? 'Hi ' + firstName + ', Welcome to LyBot. Which website news do you want?' : 'Welcome to LyBot. Which news do you want to hear about?',
 		'quick_replies': [
 			{
 				'content_type': 'text',

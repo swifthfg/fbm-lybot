@@ -11,12 +11,12 @@ function crawlWebrazzi() {
 
 	return rp(crawlUrl)
 	.then(function (body) {
-		let parsedRoot = cheerio.load(body);
+		let parsedRoot = cheerio.load(body)
 		let contentUrls = parsedRoot('.post-title > a')
 		let images = parsedRoot('.post-gallery > a > img')
 		let subtitles = parsedRoot('.post-content > p')
-		let results = [];
-		for (var i = 0; i < contentUrls.length; i++) {
+		let results = []
+		for (let i = 0; i < contentUrls.length; i++) {
 			try {
 				let tempContent = {
 					contentTitle: contentUrls[i].attribs['title'],
@@ -33,7 +33,8 @@ function crawlWebrazzi() {
 		return results
 	})
 	.catch(function (err) {
-		console.error('Webrazzi parsing process failed: ' + err)
+		console.error('Webrazzi parsing process failed')
+		console.error(err)
 	})
 }
 
