@@ -34,7 +34,22 @@ setInterval(function() {
 			}
 		}
 	 })
-}, 1000*15*60)
+}, 1000*60*60)
+
+// TODO REMOVE THIS PART LATER, THIS IS FOR FUN
+setInterval(function() {
+	crawler.crawlWebrazzi().then(function (results) {
+		webrazziNewsMD = formatMessageDataFromCrawlingResults(results)
+		for (let i = 0; i < senderIds.length; i++) {
+			try {
+				sendText(senderIds[i], 'Your character is formed by habits\nWe are what we repeatedly do\nIf you win the first hour of the day, you win the day\nWithout self-discipline, success is impossible, period.')
+			} catch (e) {
+				console.error('Error occured while sending interval mmessages');
+				console.error(e);
+			}
+		}
+	 })
+}, 1000*120*60)
 
 setInterval(function() {
 	console.log("Ping");
