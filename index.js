@@ -26,6 +26,7 @@ setInterval(function() {
 		webrazziNewsMD = formatMessageDataFromCrawlingResults(results)
 		for (let i = 0; i < senderIds.length; i++) {
 			try {
+				sendText(senderIds[i], 'Here is your news, enjoy!')
 				sendPostbackMessage(senderIds[i], webrazziNewsMD)
 			} catch (e) {
 				console.error('Error occured while sending interval mmessages');
