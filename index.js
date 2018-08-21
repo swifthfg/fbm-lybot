@@ -55,13 +55,13 @@ app.post('/webhook', (req, res) => {
 			getSenderName(sender).then(function(response) {
 				let firstName = response.name.substr(0, response.name.indexOf(' '))
 				if (mEvent.message && mEvent.message.text) {
-					let text = mEvent.message.text.toLowerCase();
+					let text = mEvent.message.text.toLowerCase()
 					if (doesItExistInArray(constants.hiWordsEN_customer, text.split())) {
-						sendGreetingQuickReply(sender, firstName);
+						sendGreetingQuickReply(sender, firstName)
 					} else if (text == 'webrazzi'){
 						sendPostbackMessage(sender, webrazziNewsMD)
 					} else {
-						sendText(sender, 'What\'s up?')
+						sendText(sender, 'I didn\'t get what you said')
 						sendPostbackMessage(sender, null)
 					}
 				}
@@ -71,7 +71,7 @@ app.post('/webhook', (req, res) => {
 					} else if (mEvent.postback.payload == 'identityinfo') {
 						sendText(sender, "I am a notifier bot that can serve you for your news reading pleasure. I crawl the websites you wish and send the latest news every hour. Enjoy your news.")
 					} else if (mEvent.postback.payload == 'getmethenews') {
-						sendGreetingQuickReply(sender, firstName);
+						sendGreetingQuickReply(sender, firstName)
 					}
 				}
 			})
