@@ -33,7 +33,11 @@ setInterval(function() {
 			}
 		}
 	 })
-}, 1000*60*60)
+}, 1000*15*60)
+
+setInterval(function() {
+	console.log("Ping");
+}, 1000*5*60)
 
 // Receives message and responds with proper text or postback options
 app.post('/webhook', (req, res) => {
