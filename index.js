@@ -242,9 +242,6 @@ function sendMessage(sender, messageData) {
 			message: messageData
 		}
 	})
-	.then(function(response){
-		sendTypeOffAction(sender)
-	})
 	.catch(function(error) {
 		sendTypeOffAction(sender)
 		console.error('error occured while sending Message')
