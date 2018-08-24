@@ -72,4 +72,4 @@ define('hiWordsEN_bot', [
 
 define('graphURL', 'https://graph.facebook.com/v2.11/')
 
-define('graphMessagesURL', 'https://graph.facebook.com/v2.6/messages/')
+define('graphMessagesURL', 'https://graph.facebook.com/v2.6/me/messages')
