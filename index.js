@@ -67,7 +67,6 @@ app.post('/webhook', (req, res) => {
 				res.send(404)
 				return
 			} else {
-				sendTypeOnAction(sender)
 				let firstName = response.name.substr(0, response.name.indexOf(' '))
 				if (mEvent.message && mEvent.message.text) {
 					let text = mEvent.message.text.toLowerCase()
@@ -122,6 +121,7 @@ app.get('/webhook', (req, res) => {
 
 
 /* ############################################################ UTILS ############################################################ */
+
 
 function sendTypeOnAction(sender) {
 	request({
@@ -232,6 +232,7 @@ function sendText(sender, textMessage) {
 }
 
 function sendMessage(sender, messageData) {
+	sendTypeOnAction(sender)
 	rp({
 		url: constants.graphMessagesURL,
 		qs: {access_token: process.env.TOKEN},
@@ -245,6 +246,7 @@ function sendMessage(sender, messageData) {
 		sendTypeOffAction(sender)
 	})
 	.catch(function(error) {
+		sendTypeOffAction(sender)
 		console.error('error occured while sending Message')
 		console.error(error)
 	})
