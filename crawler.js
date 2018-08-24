@@ -71,7 +71,6 @@ function crawlDunyaHalleri() {
 				console.error(err);
 			}
 		}
-		console.log(results);
 		return results
 	})
 	.catch(function (err) {
