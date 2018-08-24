@@ -34,22 +34,7 @@ setInterval(function() {
 			}
 		}
 	 })
-}, 1000*60*60)
-
-// TODO REMOVE THIS PART LATER, THIS IS FOR FUN
-setInterval(function() {
-	crawler.crawlWebrazzi().then(function (results) {
-		webrazziNewsMD = formatMessageDataFromCrawlingResults(results)
-		for (let i = 0; i < senderIds.length; i++) {
-			try {
-				sendText(senderIds[i], 'Your character is formed by habits\nWe are what we repeatedly do\nIf you win the first hour of the day, you win the day\nWithout self-discipline, success is impossible, period.')
-			} catch (e) {
-				console.error('Error occured while sending interval mmessages');
-				console.error(e);
-			}
-		}
-	 })
-}, 1000*120*60)
+}, 1000*27*60)
 
 setInterval(function() {
 	console.log("Ping");
@@ -59,51 +44,56 @@ setInterval(function() {
 app.post('/webhook', (req, res) => {
 	let body = req.body
 
-	if (body.object === 'page') {
-		let messagingEvents = req.body.entry[0].messaging
-		if (!messagingEvents) {
-			console.log('No event')
-			res.sendStatus(422)
-			return
-		}
-		for (let i = 0; i < messagingEvents.length; i++) {
-			let mEvent = messagingEvents[i]
-			let sender = mEvent.sender.id
-			if (!(senderIds.indexOf(sender) > -1)) {
-				senderIds.push(sender)
-			}
-			getSenderName(sender).then(function(response) {
-				let firstName = response.name.substr(0, response.name.indexOf(' '))
-				if (mEvent.message && mEvent.message.text) {
-					let text = mEvent.message.text.toLowerCase()
-					if (doesItExistInArray(constants.hiWordsEN_customer, text.split())) {
-						sendGreetingQuickReply(sender, firstName)
-					} else if (text == 'webrazzi'){
-						sendPostbackMessage(sender, webrazziNewsMD)
-					} else {
-						sendText(sender, 'I didn\'t get what you said')
-						sendPostbackMessage(sender, null)
-					}
-				}
-				else if (mEvent.postback) {
-					if (mEvent.postback.payload == 'getstarted') {
-						sendPostbackMessage(sender, null)
-					} else if (mEvent.postback.payload == 'identityinfo') {
-						sendText(sender, "I am a notifier bot that can serve you for your news reading pleasure. I crawl the websites you wish and send the latest news every hour. Enjoy your news.")
-					} else if (mEvent.postback.payload == 'getmethenews') {
-						sendGreetingQuickReply(sender, firstName)
-					}
-				}
-			})
-			.catch(function(error) {
-				console.log('error occured while fetching user name')
-				console.error(error)
-				res.sendStatus(422)
-			})
-		}
-		res.sendStatus(200)
-	} else {
+	if (body.object !== 'page') {
 		res.sendStatus(404)
+		return
+	}
+
+	let messagingEvents = req.body.entry[0].messaging
+	if (!messagingEvents) {
+		console.log('No event')
+		res.sendStatus(422)
+		return
+	}
+	for (let i = 0; i < messagingEvents.length; i++) {
+		let mEvent = messagingEvents[i]
+		let sender = mEvent.sender.id
+		if (!(senderIds.indexOf(sender) > -1)) {
+			senderIds.push(sender)
+		}
+		getSenderName(sender).then(function(response) {
+			sendTypeOnAction(sender)
+			let firstName = response.name.substr(0, response.name.indexOf(' '))
+			if (mEvent.message && mEvent.message.text) {
+				let text = mEvent.message.text.toLowerCase()
+				if (doesItExistInArray(constants.hiWordsEN_customer, text.split())) {
+					sendGreetingQuickReply(sender, firstName)
+				} else if (text == 'webrazzi'){
+					sendPostbackMessage(sender, webrazziNewsMD)
+				} else {
+					sendText(sender, 'I didn\'t get what you said')
+					sendPostbackMessage(sender, null)
+				}
+			}
+			else if (mEvent.postback) {
+				if (mEvent.postback.payload == 'getstarted') {
+					sendPostbackMessage(sender, null)
+				} else if (mEvent.postback.payload == 'identityinfo') {
+					sendText(sender, "I am a notifier bot that can serve you for your news reading pleasure. I crawl the websites you wish and send the latest news every hour. Enjoy your news.")
+				} else if (mEvent.postback.payload == 'getmethenews') {
+					sendGreetingQuickReply(sender, firstName)
+				}
+			}
+		})
+		.then(function() {
+			res.sendStatus(200)
+		})
+		.catch(function(error) {
+			sendTypeOffAction(sender)
+			console.error('error occured while fetching user name')
+			console.error(error)
+			res.sendStatus(422)
+		})
 	}
 })
 
@@ -126,6 +116,44 @@ app.get('/webhook', (req, res) => {
 
 
 /* ############################################################ UTILS ############################################################ */
+
+function sendTypeOnAction(sender) {
+	request({
+		url: constants.graphMessagesURL,
+		qs: {access_token: process.env.TOKEN},
+		method: 'POST',
+		json: {
+			recipient: {id: sender},
+			sender_action: 'typing_on'
+		}
+	}, function(error, response, body) {
+		genericErrorHandler(error, response)
+	})
+}
+
+function sendTypeOffAction(sender) {
+	request({
+		url: constants.graphMessagesURL,
+		qs: {access_token: process.env.TOKEN},
+		method: 'POST',
+		json: {
+			recipient: {id: sender},
+			sender_action: 'typing_off'
+		}
+	}, function(error, response, body) {
+		genericErrorHandler(error, response)
+	})
+}
+
+fucntion genericErrorHandler(error, response) {
+	if (error) {
+		console.error('error occured')
+		console.error(error);
+	} else if (response.body.error) {
+		console.error('response body error occured')
+		console.error(response.body.error);
+	}
+}
 
 function formatMessageDataFromCrawlingResults(crawlingResults) {
 	let payloadElements = []
@@ -198,23 +226,22 @@ function sendText(sender, textMessage) {
 }
 
 function sendMessage(sender, messageData) {
-	let recipientData = {id: sender}
-	request({
-		url: 'https://graph.facebook.com/v2.6/me/messages',
+	rp({
+		url: constants.graphMessagesURL,
 		qs: {access_token: process.env.TOKEN},
 		method: 'POST',
 		json: {
-			recipient: recipientData,
+			recipient: {id: sender},
 			message: messageData
 		}
-	}, function(error, response, body) {
-		if (error) {
-			console.error('error occured')
-			console.error(error);
-		} else if (response.body.error) {
-			console.error('response body error occured')
-			console.error(response.body.error);
-		}
+	})
+	.then(function(response){
+		sendTypeOffAction(sender)
+	})
+	.catch(function(error) {
+		console.error('error occured while sending Message')
+		console.error(error)
+		res.sendStatus(422)
 	})
 }
 
