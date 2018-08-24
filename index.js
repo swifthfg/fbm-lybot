@@ -64,7 +64,8 @@ app.post('/webhook', (req, res) => {
 		getSenderName(sender).then(function(response) {
 			if (isNaN(sender)) {
 				console.log('NaN sender: ' + sender);
-				continue
+				res.send(404)
+				return
 			} else {
 				sendTypeOnAction(sender)
 				let firstName = response.name.substr(0, response.name.indexOf(' '))
