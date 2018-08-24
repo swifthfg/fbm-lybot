@@ -62,26 +62,31 @@ app.post('/webhook', (req, res) => {
 			senderIds.push(sender)
 		}
 		getSenderName(sender).then(function(response) {
-			sendTypeOnAction(sender)
-			let firstName = response.name.substr(0, response.name.indexOf(' '))
-			if (mEvent.message && mEvent.message.text) {
-				let text = mEvent.message.text.toLowerCase()
-				if (doesItExistInArray(constants.hiWordsEN_customer, text.split())) {
-					sendGreetingQuickReply(sender, firstName)
-				} else if (text == 'webrazzi'){
-					sendPostbackMessage(sender, webrazziNewsMD)
-				} else {
-					sendText(sender, 'I didn\'t get what you said')
-					sendPostbackMessage(sender, null)
+			if (isNaN(sender)) {
+				console.log('NaN sender: ' + sender);
+				continue
+			} else {
+				sendTypeOnAction(sender)
+				let firstName = response.name.substr(0, response.name.indexOf(' '))
+				if (mEvent.message && mEvent.message.text) {
+					let text = mEvent.message.text.toLowerCase()
+					if (doesItExistInArray(constants.hiWordsEN_customer, text.split())) {
+						sendGreetingQuickReply(sender, firstName)
+					} else if (text == 'webrazzi'){
+						sendPostbackMessage(sender, webrazziNewsMD)
+					} else {
+						sendText(sender, 'I didn\'t get what you said')
+						sendPostbackMessage(sender, null)
+					}
 				}
-			}
-			else if (mEvent.postback) {
-				if (mEvent.postback.payload == 'getstarted') {
-					sendPostbackMessage(sender, null)
-				} else if (mEvent.postback.payload == 'identityinfo') {
-					sendText(sender, "I am a notifier bot that can serve you for your news reading pleasure. I crawl the websites you wish and send the latest news every hour. Enjoy your news.")
-				} else if (mEvent.postback.payload == 'getmethenews') {
-					sendGreetingQuickReply(sender, firstName)
+				else if (mEvent.postback) {
+					if (mEvent.postback.payload == 'getstarted') {
+						sendPostbackMessage(sender, null)
+					} else if (mEvent.postback.payload == 'identityinfo') {
+						sendText(sender, "I am a notifier bot that can serve you for your news reading pleasure. I crawl the websites you wish and send the latest news every hour. Enjoy your news.")
+					} else if (mEvent.postback.payload == 'getmethenews') {
+						sendGreetingQuickReply(sender, firstName)
+					}
 				}
 			}
 		})
@@ -132,9 +137,6 @@ function sendTypeOnAction(sender) {
 }
 
 function sendTypeOffAction(sender) {
-	console.log('######################');
-	console.log('sender: ' + sender);
-
 	request({
 		url: constants.graphMessagesURL,
 		qs: {access_token: process.env.TOKEN},
