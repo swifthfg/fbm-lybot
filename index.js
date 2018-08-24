@@ -145,7 +145,7 @@ function sendTypeOffAction(sender) {
 	})
 }
 
-fucntion genericErrorHandler(error, response) {
+function genericErrorHandler(error, response) {
 	if (error) {
 		console.error('error occured')
 		console.error(error);
