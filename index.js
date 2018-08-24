@@ -178,7 +178,7 @@ function formatMessageDataFromCrawlingResults(crawlingResults) {
 				{
 					'type':'web_url',
 					'url':crawlingResults[i].contentUrl,
-					'title':'View Website'
+					'title':'View News'
 				}
 			]
 		}
@@ -248,7 +248,7 @@ function sendMessage(sender, messageData) {
 			console.error('error occured while sending Message')
 			console.error(error)
 		})
-	}, 1200)
+	}, 900)
 }
 
 function getGreetingQuickReply(firstName=null) {
