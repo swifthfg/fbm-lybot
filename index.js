@@ -233,20 +233,22 @@ function sendText(sender, textMessage) {
 
 function sendMessage(sender, messageData) {
 	sendTypeOnAction(sender)
-	rp({
-		url: constants.graphMessagesURL,
-		qs: {access_token: process.env.TOKEN},
-		method: 'POST',
-		json: {
-			recipient: {id: sender},
-			message: messageData
-		}
-	})
-	.catch(function(error) {
-		sendTypeOffAction(sender)
-		console.error('error occured while sending Message')
-		console.error(error)
-	})
+	setTimeout(function() {
+		rp({
+			url: constants.graphMessagesURL,
+			qs: {access_token: process.env.TOKEN},
+			method: 'POST',
+			json: {
+				recipient: {id: sender},
+				message: messageData
+			}
+		})
+		.catch(function(error) {
+			sendTypeOffAction(sender)
+			console.error('error occured while sending Message')
+			console.error(error)
+		})
+	}, 1200)
 }
 
 function getGreetingQuickReply(firstName=null) {
