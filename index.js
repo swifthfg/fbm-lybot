@@ -15,26 +15,47 @@ app.get('/', function (req, res) {
 	res.send('Welcome to LYBOT')
 })
 
+var senderIds = []
 var webrazziNewsMD = null
+var dunyaHalleriMD = null
+
 crawler.crawlWebrazzi().then(function (results) {
 	webrazziNewsMD = formatMessageDataFromCrawlingResults(results)
 })
 
-var senderIds = []
+crawler.crawlDunyaHalleri().then(function (results) {
+	dunyaHalleriMD = formatMessageDataFromCrawlingResults(results)
+})
+
 setInterval(function() {
 	crawler.crawlWebrazzi().then(function (results) {
 		webrazziNewsMD = formatMessageDataFromCrawlingResults(results)
 		for (let i = 0; i < senderIds.length; i++) {
 			try {
-				sendText(senderIds[i], 'Here is your news, enjoy!')
+				sendText(senderIds[i], 'Here are your Webrazzi News, enjoy!')
 				sendPostbackMessage(senderIds[i], webrazziNewsMD)
 			} catch (e) {
-				console.error('Error occured while sending interval mmessages');
+				console.error('Error occured while sending Webrazzi interval messages');
 				console.error(e);
 			}
 		}
 	 })
 }, 1000*27*60)
+
+setInterval(function() {
+	crawler.dunyaHalleriMD().then(function (results) {
+		dunyaHalleriMD = formatMessageDataFromCrawlingResults(results)
+		for (let i = 0; i < senderIds.length; i++) {
+			try {
+				sendText(senderIds[i], 'Here are your DünyaHalleri News, enjoy!')
+				sendPostbackMessage(senderIds[i], dunyaHalleriMD)
+			} catch (e) {
+				console.error('Error occured while sending DunyaHalleri interval messages');
+				console.error(e);
+			}
+		}
+	 })
+}, 1000*25*60)
 
 setInterval(function() {
 	console.log("Ping");
@@ -72,8 +93,12 @@ app.post('/webhook', (req, res) => {
 					let text = mEvent.message.text.toLowerCase()
 					if (doesItExistInArray(constants.hiWordsEN_customer, text.split())) {
 						sendGreetingQuickReply(sender, firstName)
+					} else if (doesItExistInArray(constants.farewellWordsEN_customer, text.split())) {
+						sendText(sender, 'Good Bye ' + firstName + '. You are always welcome. Please make sure that you come here and chat again. See you :)')
 					} else if (text == 'webrazzi'){
 						sendPostbackMessage(sender, webrazziNewsMD)
+					} else if (text == 'dünya halleri'){
+						sendPostbackMessage(sender, dunyaHalleriMD)
 					} else {
 						sendText(sender, 'I didn\'t get what you said')
 						sendPostbackMessage(sender, null)
@@ -282,7 +307,7 @@ function doesItExistInArray(haystack, arr) {
 }
 
 function getSenderName(senderId) {
-	var options = {
+	let options = {
 		url: constants.graphURL + senderId,
 		qs: {fields: 'name,birthday', access_token: process.env.TOKEN},
 		method: "GET",
