@@ -241,7 +241,6 @@ function sendMessage(sender, messageData) {
 	.catch(function(error) {
 		console.error('error occured while sending Message')
 		console.error(error)
-		res.sendStatus(422)
 	})
 }
 
