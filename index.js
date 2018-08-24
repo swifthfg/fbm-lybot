@@ -132,6 +132,9 @@ function sendTypeOnAction(sender) {
 }
 
 function sendTypeOffAction(sender) {
+	console.log(######################);
+	console.log('sender: ' + sender);
+
 	request({
 		url: constants.graphMessagesURL,
 		qs: {access_token: process.env.TOKEN},
