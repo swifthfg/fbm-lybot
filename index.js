@@ -132,7 +132,7 @@ function sendTypeOnAction(sender) {
 }
 
 function sendTypeOffAction(sender) {
-	console.log(######################);
+	console.log('######################');
 	console.log('sender: ' + sender);
 
 	request({
