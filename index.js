@@ -284,7 +284,6 @@ function getGreetingQuickReply(firstName=null) {
 				'content_type': 'text',
 				'title': 'Webrazzi',
 				'payload': 'webrazzi',
-				// TODO logos will be added as image_url property
 			},
 			{
 				'content_type': 'text',
